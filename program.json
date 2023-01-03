@@ -1,0 +1,10 @@
+{
+    "program": "game.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkpFDCPspWTHXUjtnW92yiiwFNtt1m9zr1VWpv6jmcPT8b1",
+        "address": "aleo1tn89sgnzgydymhgrh7asgr575s3298q6fa4m6jmj88dvpx2t6ugqza9ded"
+    },
+    "license": "MIT"
+}
