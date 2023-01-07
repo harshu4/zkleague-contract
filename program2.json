@@ -1,0 +1,10 @@
+{
+    "program": "teswtor.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkp8P6Y7YPRhLxtz1x8BHim8r4jcK5sP5vgfc1bE65zeTND",
+        "address": "aleo14s8n4avdtsgtugwzld9974c280r862l2ax2rdl6r4ched44qdqqq6hdtsu"
+    },
+    "license": "MIT"
+}

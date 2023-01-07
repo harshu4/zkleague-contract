@@ -1,9 +1,6 @@
 // The `program` scope defines the data types, functions, and state associated with the `token` program.
-import issuegame.leo;
+
 import acceptgame.leo;
-import issuemove.leo;
-import acceptmove.leo;
-import finalizemove.leo;
 
 program game.aleo {
     // On-chain storage of an `account` map, with `address` as the key,
@@ -20,9 +17,9 @@ program game.aleo {
     }
 
 
-     transition faucet(receiver: address) -> token {
+     transition faucet() -> token {
         return token {
-            owner: receiver,
+            owner: self.caller,
             gates: 0u64,
             amount: 50u64,
         };
@@ -36,21 +33,22 @@ program game.aleo {
     transition start (
         gameid:u64,
         amount:u64,
-        rec:token
-    ) -> (issuegame.leo/issuegame.record,token) {
+        rec:token,
+        acceptor:address
+    ) -> (acceptgame.leo/acceptgame.record,token) {
         assert(rec.amount>=amount);
         let transferred: token = token {
             owner : self.caller,
             gates: 0u64,
             amount: rec.amount-amount,
         };
-        let state : issuegame = issuegame.leo/issuegames(gameid,amount);
+        let state : acceptgame = acceptgame.leo/issuegame(gameid,amount,acceptor);
         return (state,transferred);
 
     }
 
     transition accept (
-        game: issuegame.leo/issuegame.record,
+        game: acceptgame.leo/acceptgame.record,
         rec :token
     ) -> (acceptgame.leo/acceptgame.record,token){
          assert(rec.amount>=game.amount);
@@ -61,90 +59,117 @@ program game.aleo {
         };
        
         
-        let state: acceptgame = acceptgame.leo/acceptgames(game.gameid,game.amount,game.issuer);
+        let state: acceptgame = acceptgame.leo/acceptorgame(game);
         return (state,transferred);   
     }
+
+      transition main(public a: u32, b: u32) -> u32 {
+        let c: u32 = a + b;
+        return c;
+    }
+
+
 
     transition initiatemove
     (
     game:acceptgame.leo/acceptgame.record,
     move:u64,
-    ) -> (issuemove.leo/issuemove.record,acceptgame.leo/acceptgame.record){
+    ) -> (acceptgame.leo/acceptgame.record){
         assert_eq(game.issuer,self.caller);
-        let movenum:u64 = game.currentmove+1u64;
         let hash:field = BHP256::hash(move);
-        let state: issuemove = issuemove.leo/issuemoves(game.gameid,movenum,hash);
-         let boba: acceptgame =   acceptgame.leo/mock(game);     
-        return (state,boba);
+         let boba: acceptgame =   acceptgame.leo/initiatehash(game,hash);     
+        return boba;
 
 
     }
 
 
     transition challengemove(
-        move:issuemove.leo/issuemove.record,
-        mymove:u64,
-        game: acceptgame.leo/acceptgame.record
-    ) -> (acceptmove.leo/acceptmove.record,acceptgame.leo/acceptgame.record){
+      
+        game: acceptgame.leo/acceptgame.record,
+        move:u64
+    ) -> (acceptgame.leo/acceptgame.record){
         
- assert_eq(game.acceptor,self.caller);
-        let state : acceptmove = acceptmove.leo/acceptmoves(move.gameid,move.movenum,move.issuehash,mymove);
-        let boba: acceptgame =   acceptgame.leo/mock(game);     
-        return (state,boba);
+
+        let boba: acceptgame =   acceptgame.leo/acceptmove(game,move);     
+        return boba;
 
     }
+
 
     transition  finalizemov(
 
         game: acceptgame.leo/acceptgame.record,
-        move:acceptmove.leo/acceptmove.record,
        
-         playermove: u64,
+         playermove: u64
     ) -> acceptgame.leo/acceptgame.record{
         assert(game.currentmove<3u64);
-        assert_eq(BHP256::hash(playermove),move.issuehash);
-        assert_eq(game.issuer,self.caller);
+        let acceptormove:u64 = 3u64;
+
+          if(game.currentmove == 0u64){
+            assert(game.player1move1hash == BHP256::hash(playermove));
+             acceptormove = game.player2move1;
+        }
+
+        else if(game.currentmove == 1u64){
+             assert(game.player1move2hash == BHP256::hash(playermove)); 
+             acceptormove = game.player2move2;
+
+        }
+
+        else if(game.currentmove == 2u64){
+            assert(game.player1move3hash == BHP256::hash(playermove)); 
+             acceptormove = game.player2move3;
+           
+        }
+        else{
+            assert(false);
+        }
+
+        assert(acceptormove != 3u64);
         let playermov: u64 = playermove.mod(1009u64);
         let winner:u64 = 0u64;
-        if(playermov == move.acceptormove){
+        if(playermov == acceptormove){
                    winner = 0u64;
 
         }
         // 0 = wand , 1= talwar, 2=defense
         else{
-            if(playermov==0u64 && move.acceptormove == 1u64){
+            if(playermov==0u64 && acceptormove == 1u64){
              winner = 2u64;
             }
-            else if(playermov==1u64 && move.acceptormove == 0u64){
+            else if(playermov==1u64 && acceptormove == 0u64){
                   winner = 1u64;
             
             }
 
-            else if(playermov==0u64 && move.acceptormove == 2u64){
+            else if(playermov==0u64 && acceptormove == 2u64){
                    winner = 1u64;
             }
 
-            else if(playermov==2u64 && move.acceptormove == 0u64){
+            else if(playermov==2u64 && acceptormove == 0u64){
                    winner= 2u64;
             }
 
-            else if(playermov==2u64 && move.acceptormove == 1u64){
+            else if(playermov==2u64 && acceptormove == 1u64){
                     winner= 1u64;
             }
 
-            else if(playermov==1u64 && move.acceptormove == 2u64){
+            else if(playermov==1u64 && acceptormove == 2u64){
                     winner= 2u64;
             }
         }
-        let mov:u64 = game.currentmove+1u64;
-        let state2: acceptgame = acceptgame.leo/changemove(game,mov,winner);
-        let state: finalizemove = finalizemove.leo/finalizemoves(game.gameid,move.movenum,playermov,move.acceptormove,winner);
+        
+        let state2: acceptgame = acceptgame.leo/changemove(game,winner,playermov);
 
         
         return (state2);
 
     }
 
+
+}
+/**
 
     transition winners( game: acceptgame.leo/acceptgame.record)->  token{
         assert(game.currentmove>=3u64);
@@ -198,3 +223,4 @@ program game.aleo {
     }
     
 }
+**/
