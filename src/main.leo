@@ -40,21 +40,21 @@ program game.aleo {
     ) -> acceptgame {
         
    
-        let state : acceptgame = issuegame(gameid,amount,acceptor);
+        let state : acceptgame = issuegame(gameid,amount,acceptor,self.caller);
         return state;
 
     }
 
 
 
-     function issuegame(gameid:u64,amount:u64,acceptor:address) -> acceptgame {
+     function issuegame(gameid:u64,amount:u64,acceptor:address,sol:address) -> acceptgame {
         
         return acceptgame{
             owner:acceptor,
             gates:0u64,
             gameid:gameid,
             amount: amount,
-            issuer: self.caller,
+            issuer: sol,
             acceptor: acceptor,
             player1move1hash: BHP256::hash(0u64),
              currentmoveplayer:1u64,
@@ -84,10 +84,10 @@ program game.aleo {
         
        
         
-        let state: acceptgame = acceptorgame(game);
+        let state: acceptgame = acceptorgame(game,self.caller);
         return state;   
     }
-  function acceptorgame(acceptor:acceptgame) -> acceptgame {
+  function acceptorgame(acceptor:acceptgame,sol:address) -> acceptgame {
         
         return acceptgame{
             owner:acceptor.issuer,
@@ -95,7 +95,7 @@ program game.aleo {
             gameid:acceptor.gameid,
             amount: acceptor.amount,
             issuer: acceptor.issuer,
-            acceptor: self.caller,
+            acceptor: sol,
             player1move1hash: BHP256::hash(0u64),
              currentmoveplayer:0u64,
         player2move1: 3u64,
@@ -165,7 +165,7 @@ program game.aleo {
             gameid:acceptor.gameid,
             amount: acceptor.amount,
             issuer: acceptor.issuer,
-            acceptor: self.caller,
+            acceptor: acceptor.acceptor,
            
           currentmoveplayer:0u64,
                         player1move1hash: player1move1hash,
