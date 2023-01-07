@@ -1,28 +1,31 @@
 // The `program` scope defines the data types, functions, and state associated with the `token` program.
 
-import acceptgame.leo;
 
 program game.aleo {
     // On-chain storage of an `account` map, with `address` as the key,
     // and `u64` as the value.
     mapping account: address => u64;
-
-    record token {
-        // The token owner.
+   record acceptgame{
         owner: address,
-        // The Aleo balance (in gates).
         gates: u64,
-        // The token amount.
+        gameid: u64,
         amount: u64,
-    }
-
-
-     transition faucet() -> token {
-        return token {
-            owner: self.caller,
-            gates: 0u64,
-            amount: 50u64,
-        };
+        issuer: address,
+        acceptor: address
+        currentmove:u64,
+        currentmoveplayer:u64,
+        player1points: u64,
+        player2points:u64,
+        player1move1hash: field,
+        player2move1: u64,
+        player1move1:u64,
+        player1move2hash: field,
+        player2move2: u64,
+        player1move2:u64
+        player1move3hash: field,
+        player2move3: u64,
+        player1move3:u64,
+     
     }
 
 
@@ -33,76 +36,231 @@ program game.aleo {
     transition start (
         gameid:u64,
         amount:u64,
-        rec:token,
         acceptor:address
-    ) -> (acceptgame.leo/acceptgame.record,token) {
-        assert(rec.amount>=amount);
-        let transferred: token = token {
-            owner : self.caller,
-            gates: 0u64,
-            amount: rec.amount-amount,
-        };
-        let state : acceptgame = acceptgame.leo/issuegame(gameid,amount,acceptor);
-        return (state,transferred);
+    ) -> acceptgame {
+        
+   
+        let state : acceptgame = issuegame(gameid,amount,acceptor);
+        return state;
 
+    }
+
+
+
+     function issuegame(gameid:u64,amount:u64,acceptor:address) -> acceptgame {
+        
+        return acceptgame{
+            owner:acceptor,
+            gates:0u64,
+            gameid:gameid,
+            amount: amount,
+            issuer: self.caller,
+            acceptor: acceptor,
+            player1move1hash: BHP256::hash(0u64),
+             currentmoveplayer:1u64,
+        player2move1: 3u64,
+        player1move1:3u64,
+        player1move2hash: BHP256::hash(0u64),
+        player2move2: 3u64,
+        player1move2:3u64,
+        player1move3hash: BHP256::hash(0u64),
+        player2move3: 3u64,
+        player1move3:3u64,
+            currentmove: 0u64,
+            player1points: 0u64,
+            player2points: 0u64,
+           
+        };
+        
+    
+    
     }
 
     transition accept (
-        game: acceptgame.leo/acceptgame.record,
-        rec :token
-    ) -> (acceptgame.leo/acceptgame.record,token){
-         assert(rec.amount>=game.amount);
-        let transferred: token = token {
-            owner : self.caller,
-            gates: 0u64,
-            amount: rec.amount-game.amount,
-        };
+        game: acceptgame,
+    
+    ) -> acceptgame{
+        
+        
        
         
-        let state: acceptgame = acceptgame.leo/acceptorgame(game);
-        return (state,transferred);   
+        let state: acceptgame = acceptorgame(game);
+        return state;   
     }
-
-      transition main(public a: u32, b: u32) -> u32 {
-        let c: u32 = a + b;
-        return c;
+  function acceptorgame(acceptor:acceptgame) -> acceptgame {
+        
+        return acceptgame{
+            owner:acceptor.issuer,
+            gates:0u64,
+            gameid:acceptor.gameid,
+            amount: acceptor.amount,
+            issuer: acceptor.issuer,
+            acceptor: self.caller,
+            player1move1hash: BHP256::hash(0u64),
+             currentmoveplayer:0u64,
+        player2move1: 3u64,
+        player1move1:3u64,
+        player1move2hash: BHP256::hash(0u64),
+        player2move2: 3u64,
+        player1move2:3u64,
+        player1move3hash: BHP256::hash(0u64),
+        player2move3: 3u64,
+        player1move3:3u64,
+            currentmove: 0u64,
+            player1points: 0u64,
+            player2points: 0u64,
+           
+        };
+        
+    
+    
     }
+    
+ 
 
 
 
     transition initiatemove
     (
-    game:acceptgame.leo/acceptgame.record,
-    move:u64,
-    ) -> (acceptgame.leo/acceptgame.record){
+    game:acceptgame,
+    move:u64
+    ) -> acceptgame{
         assert_eq(game.issuer,self.caller);
         let hash:field = BHP256::hash(move);
-         let boba: acceptgame =   acceptgame.leo/initiatehash(game,hash);     
+         let boba: acceptgame =   initiatehash(game,hash);     
         return boba;
 
 
+    }
+
+
+     function initiatehash(acceptor:acceptgame,hash:field) -> acceptgame {
+        assert(acceptor.currentmove <=2u64 );
+        let player1move1hash:field = acceptor.player1move1hash;
+        let player1move2hash:field = acceptor.player1move2hash;
+        let player1move3hash:field = acceptor.player1move3hash;
+       
+        if(acceptor.currentmove == 0u64){
+            assert(player1move1hash == BHP256::hash(0u64));
+            player1move1hash = hash;
+        }
+
+        else if(acceptor.currentmove == 1u64){
+            assert(player1move2hash == BHP256::hash(0u64));
+            player1move2hash = hash;
+        }
+
+        else if(acceptor.currentmove == 2u64){
+            assert(player1move3hash == BHP256::hash(0u64));
+            player1move3hash = hash;
+        }
+
+
+
+
+
+        return acceptgame{
+            owner:acceptor.acceptor,
+            gates:0u64,
+            gameid:acceptor.gameid,
+            amount: acceptor.amount,
+            issuer: acceptor.issuer,
+            acceptor: self.caller,
+           
+          currentmoveplayer:0u64,
+                        player1move1hash: player1move1hash,
+        player2move1: acceptor.player2move1,
+        player1move1:acceptor.player1move1,
+        player1move2hash: player1move2hash,
+        player2move2: acceptor.player2move2,
+        player1move2:acceptor.player1move2,
+        player1move3hash: player1move3hash,
+        player2move3: acceptor.player2move3,
+        player1move3:acceptor.player1move3,
+            currentmove: acceptor.currentmove,
+            player1points: acceptor.player1points,
+            player2points: acceptor.player2points,
+           
+        };
+        
+    
+    
     }
 
 
     transition challengemove(
       
-        game: acceptgame.leo/acceptgame.record,
+        game: acceptgame,
         move:u64
-    ) -> (acceptgame.leo/acceptgame.record){
+    ) -> acceptgame{
         
 
-        let boba: acceptgame =   acceptgame.leo/acceptmove(game,move);     
+        let boba: acceptgame =   acceptmove(game,move);     
         return boba;
 
+    }
+      function acceptmove(acceptor:acceptgame,move:u64) -> acceptgame {
+          assert(acceptor.currentmove <=2u64 );
+        assert(move != 3u64);
+
+        let player2move1:u64 = acceptor.player2move1;
+         let player2move2:u64 = acceptor.player2move2;
+          let player2move3:u64 = acceptor.player2move3;
+
+               if(acceptor.currentmove == 0u64){
+            assert(player2move1 == 3u64);
+            player2move1 = move;
+        }
+
+        else if(acceptor.currentmove == 1u64){
+            assert(player2move2 == 3u64);
+            player2move2 = move;
+        }
+
+        else if(acceptor.currentmove == 2u64){
+            assert(player2move3 == 3u64);
+            player2move3 = move;
+        }
+         else{
+            assert(false);
+        }
+
+
+
+        return acceptgame{
+            owner:acceptor.issuer,
+            gates:acceptor.gates,
+            gameid:acceptor.gameid,
+            amount: acceptor.amount,
+            issuer: acceptor.issuer,
+            acceptor: acceptor.acceptor,
+            currentmove: acceptor.currentmove,
+            player1points: acceptor.player1points,
+            player2points: acceptor.player2points,
+                    currentmoveplayer:0u64,
+                        player1move1hash: acceptor.player1move1hash,
+        player2move1: player2move1,
+        player1move1:acceptor.player1move1,
+        player1move2hash: acceptor.player1move2hash,
+        player2move2: player2move2,
+        player1move2:acceptor.player1move2,
+        player1move3hash: acceptor.player1move3hash,
+        player2move3: player2move3,
+        player1move3:acceptor.player1move3,
+           
+        };
+        
+    
+    
     }
 
 
     transition  finalizemov(
 
-        game: acceptgame.leo/acceptgame.record,
+        game: acceptgame,
        
          playermove: u64
-    ) -> acceptgame.leo/acceptgame.record{
+    ) -> acceptgame{
         assert(game.currentmove<3u64);
         let acceptormove:u64 = 3u64;
 
@@ -160,18 +318,83 @@ program game.aleo {
             }
         }
         
-        let state2: acceptgame = acceptgame.leo/changemove(game,winner,playermov);
-
+        let state2: acceptgame = changemove(game,winner,playermov);
+       
         
-        return (state2);
+        return state2;
 
     }
 
 
-}
-/**
+           function changemove(acceptor:acceptgame,won: u64,move: u64) -> acceptgame {
+        let player1:u64 = acceptor.player1points;
+        let player2:u64 = acceptor.player2points;
+        let currentm: u64 = acceptor.currentmove;
+        let player1move1:u64 = acceptor.player1move1;
+         let player1move2:u64 = acceptor.player1move2;
+          let player1move3:u64 = acceptor.player1move3;
+        if(acceptor.currentmove == 0u64){
+            assert(player1move1 == 3u64);
+            player1move1 = move;
+            currentm = currentm+1u64;
+            
+        }
 
-    transition winners( game: acceptgame.leo/acceptgame.record)->  token{
+        else if(acceptor.currentmove == 1u64){
+            assert(player1move2 == 3u64);
+            player1move2 = move;
+              currentm = currentm+1u64;
+            
+        }
+
+        else if(acceptor.currentmove == 2u64){
+            assert(player1move3 == 3u64);
+            player1move3 = move;
+              currentm = currentm+1u64;
+        }
+        else{
+            assert(false);
+        }
+
+  
+        if(won==1u64){
+            player1 = player1+1u64;
+            
+        }else if(won==2u64){
+            player2 = player2+1u64;
+        }
+
+                return acceptgame{
+            owner:acceptor.issuer,
+            gates:acceptor.gates,
+            gameid:acceptor.gameid,
+            amount: acceptor.amount,
+            issuer: acceptor.issuer,
+            acceptor: acceptor.acceptor,
+            currentmove: currentm,
+            player1points: player1,
+            player2points: player2,
+                    currentmoveplayer:0u64,
+                        player1move1hash: acceptor.player1move1hash,
+        player2move1: acceptor.player2move1,
+        player1move1:player1move1,
+        player1move2hash: acceptor.player1move2hash,
+        player2move2: acceptor.player2move2,
+        player1move2:player1move2,
+        player1move3hash: acceptor.player1move3hash,
+        player2move3: acceptor.player2move3,
+        player1move3:player1move3,
+           
+        };
+    
+    
+    }
+
+
+
+
+
+  /**  transition winners( game: acceptgame.leo/acceptgame.record)->  token{
         assert(game.currentmove>=3u64);
         if(game.player1points > game.player2points)  {
             return token{
@@ -212,7 +435,7 @@ program game.aleo {
                 amount : 0u64
         };
              
-    }
+    }**/
       
     
 
@@ -223,4 +446,3 @@ program game.aleo {
     }
     
 }
-**/
