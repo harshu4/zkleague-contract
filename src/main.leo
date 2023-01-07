@@ -48,14 +48,14 @@ program game.aleo {
             amount: amount,
             issuer: self.caller,
             acceptor: acceptor,
-            player1move1hash: BHP256::hash(0u64),
+            player1move1hash: Poseidon8::hash(0u64),
              currentmoveplayer:1u64,
         player2move1: 3u64,
         player1move1:3u64,
-        player1move2hash: BHP256::hash(0u64),
+        player1move2hash: Poseidon8::hash(0u64),
         player2move2: 3u64,
         player1move2:3u64,
-        player1move3hash: BHP256::hash(0u64),
+        player1move3hash: Poseidon8::hash(0u64),
         player2move3: 3u64,
         player1move3:3u64,
             currentmove: 0u64,
@@ -78,14 +78,14 @@ program game.aleo {
             amount: amount,
             issuer: sol,
             acceptor: acceptor,
-            player1move1hash: BHP256::hash(0u64),
+            player1move1hash: Poseidon8::hash(0u64),
              currentmoveplayer:1u64,
         player2move1: 3u64,
         player1move1:3u64,
-        player1move2hash: BHP256::hash(0u64),
+        player1move2hash: Poseidon8::hash(0u64),
         player2move2: 3u64,
         player1move2:3u64,
-        player1move3hash: BHP256::hash(0u64),
+        player1move3hash: Poseidon8::hash(0u64),
         player2move3: 3u64,
         player1move3:3u64,
             currentmove: 0u64,
@@ -113,14 +113,14 @@ program game.aleo {
             amount: game.amount,
             issuer: game.issuer,
             acceptor: self.caller,
-            player1move1hash: BHP256::hash(0u64),
+            player1move1hash: Poseidon8::hash(0u64),
              currentmoveplayer:0u64,
         player2move1: 3u64,
         player1move1:3u64,
-        player1move2hash: BHP256::hash(0u64),
+        player1move2hash: Poseidon8::hash(0u64),
         player2move2: 3u64,
         player1move2:3u64,
-        player1move3hash: BHP256::hash(0u64),
+        player1move3hash: Poseidon8::hash(0u64),
         player2move3: 3u64,
         player1move3:3u64,
             currentmove: 0u64,
@@ -143,14 +143,14 @@ program game.aleo {
             amount: acceptor.amount,
             issuer: acceptor.issuer,
             acceptor: sol,
-            player1move1hash: BHP256::hash(0u64),
+            player1move1hash: Poseidon8::hash(0u64),
              currentmoveplayer:0u64,
         player2move1: 3u64,
         player1move1:3u64,
-        player1move2hash: BHP256::hash(0u64),
+        player1move2hash: Poseidon8::hash(0u64),
         player2move2: 3u64,
         player1move2:3u64,
-        player1move3hash: BHP256::hash(0u64),
+        player1move3hash: Poseidon8::hash(0u64),
         player2move3: 3u64,
         player1move3:3u64,
             currentmove: 0u64,
@@ -174,24 +174,24 @@ program game.aleo {
     move:u64
     ) -> acceptgame{
         assert_eq(game.issuer,self.caller);
-        let hash:field = BHP256::hash(move);
+        let hash:field = Poseidon8::hash(move);
 assert(game.currentmove <=2u64 );
         let player1move1hash:field = game.player1move1hash;
         let player1move2hash:field = game.player1move2hash;
         let player1move3hash:field = game.player1move3hash;
        
         if(game.currentmove == 0u64){
-            assert(player1move1hash == BHP256::hash(0u64));
+            assert(player1move1hash == Poseidon8::hash(0u64));
             player1move1hash = hash;
         }
 
         else if(game.currentmove == 1u64){
-            assert(player1move2hash == BHP256::hash(0u64));
+            assert(player1move2hash == Poseidon8::hash(0u64));
             player1move2hash = hash;
         }
 
         else if(game.currentmove == 2u64){
-            assert(player1move3hash == BHP256::hash(0u64));
+            assert(player1move3hash == Poseidon8::hash(0u64));
             player1move3hash = hash;
         }
 
@@ -236,17 +236,17 @@ assert(game.currentmove <=2u64 );
         let player1move3hash:field = acceptor.player1move3hash;
        
         if(acceptor.currentmove == 0u64){
-            assert(player1move1hash == BHP256::hash(0u64));
+            assert(player1move1hash == Poseidon8::hash(0u64));
             player1move1hash = hash;
         }
 
         else if(acceptor.currentmove == 1u64){
-            assert(player1move2hash == BHP256::hash(0u64));
+            assert(player1move2hash == Poseidon8::hash(0u64));
             player1move2hash = hash;
         }
 
         else if(acceptor.currentmove == 2u64){
-            assert(player1move3hash == BHP256::hash(0u64));
+            assert(player1move3hash == Poseidon8::hash(0u64));
             player1move3hash = hash;
         }
 
@@ -408,18 +408,18 @@ assert(game.currentmove <=2u64 );
         let acceptormove:u64 = 3u64;
 
           if(game.currentmove == 0u64){
-            assert(game.player1move1hash == BHP256::hash(playermove));
+            assert(game.player1move1hash == Poseidon8::hash(playermove));
              acceptormove = game.player2move1;
         }
 
         else if(game.currentmove == 1u64){
-             assert(game.player1move2hash == BHP256::hash(playermove)); 
+             assert(game.player1move2hash == Poseidon8::hash(playermove)); 
              acceptormove = game.player2move2;
 
         }
 
         else if(game.currentmove == 2u64){
-            assert(game.player1move3hash == BHP256::hash(playermove)); 
+            assert(game.player1move3hash == Poseidon8::hash(playermove)); 
              acceptormove = game.player2move3;
            
         }
