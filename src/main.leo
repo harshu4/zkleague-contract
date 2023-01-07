@@ -39,14 +39,36 @@ program game.aleo {
         acceptor:address
     ) -> acceptgame {
         
-   
-        let state : acceptgame = issuegame(gameid,amount,acceptor,self.caller);
-        return state;
+        
+      
+        return acceptgame{
+            owner:acceptor,
+            gates:0u64,
+            gameid:gameid,
+            amount: amount,
+            issuer: self.caller,
+            acceptor: acceptor,
+            player1move1hash: BHP256::hash(0u64),
+             currentmoveplayer:1u64,
+        player2move1: 3u64,
+        player1move1:3u64,
+        player1move2hash: BHP256::hash(0u64),
+        player2move2: 3u64,
+        player1move2:3u64,
+        player1move3hash: BHP256::hash(0u64),
+        player2move3: 3u64,
+        player1move3:3u64,
+            currentmove: 0u64,
+            player1points: 0u64,
+            player2points: 0u64,
+           
+        };
+       
 
     }
 
 
-
+/**
      function issuegame(gameid:u64,amount:u64,acceptor:address,sol:address) -> acceptgame {
         
         return acceptgame{
@@ -75,7 +97,7 @@ program game.aleo {
     
     
     }
-
+**/
     transition accept (
         game: acceptgame,
     
@@ -84,9 +106,34 @@ program game.aleo {
         
        
         
-        let state: acceptgame = acceptorgame(game,self.caller);
-        return state;   
+         return acceptgame{
+            owner:game.issuer,
+            gates:0u64,
+            gameid:game.gameid,
+            amount: game.amount,
+            issuer: game.issuer,
+            acceptor: self.caller,
+            player1move1hash: BHP256::hash(0u64),
+             currentmoveplayer:0u64,
+        player2move1: 3u64,
+        player1move1:3u64,
+        player1move2hash: BHP256::hash(0u64),
+        player2move2: 3u64,
+        player1move2:3u64,
+        player1move3hash: BHP256::hash(0u64),
+        player2move3: 3u64,
+        player1move3:3u64,
+            currentmove: 0u64,
+            player1points: 0u64,
+            player2points: 0u64,
+           
+        };
+
+
+
     }
+
+    /**
   function acceptorgame(acceptor:acceptgame,sol:address) -> acceptgame {
         
         return acceptgame{
@@ -115,6 +162,7 @@ program game.aleo {
     
     
     }
+    **/
     
  
 
@@ -127,13 +175,60 @@ program game.aleo {
     ) -> acceptgame{
         assert_eq(game.issuer,self.caller);
         let hash:field = BHP256::hash(move);
-         let boba: acceptgame =   initiatehash(game,hash);     
-        return boba;
+assert(game.currentmove <=2u64 );
+        let player1move1hash:field = game.player1move1hash;
+        let player1move2hash:field = game.player1move2hash;
+        let player1move3hash:field = game.player1move3hash;
+       
+        if(game.currentmove == 0u64){
+            assert(player1move1hash == BHP256::hash(0u64));
+            player1move1hash = hash;
+        }
+
+        else if(game.currentmove == 1u64){
+            assert(player1move2hash == BHP256::hash(0u64));
+            player1move2hash = hash;
+        }
+
+        else if(game.currentmove == 2u64){
+            assert(player1move3hash == BHP256::hash(0u64));
+            player1move3hash = hash;
+        }
+
+
+
+
+
+        return acceptgame{
+            owner:game.acceptor,
+            gates:0u64,
+            gameid:game.gameid,
+            amount: game.amount,
+            issuer: game.issuer,
+            acceptor: game.acceptor,
+           
+          currentmoveplayer:0u64,
+                        player1move1hash: player1move1hash,
+        player2move1: game.player2move1,
+        player1move1:game.player1move1,
+        player1move2hash: player1move2hash,
+        player2move2: game.player2move2,
+        player1move2:game.player1move2,
+        player1move3hash: player1move3hash,
+        player2move3: game.player2move3,
+        player1move3:game.player1move3,
+            currentmove: game.currentmove,
+            player1points: game.player1points,
+            player2points: game.player2points,
+           
+        };
+    
 
 
     }
 
 
+/**
      function initiatehash(acceptor:acceptgame,hash:field) -> acceptgame {
         assert(acceptor.currentmove <=2u64 );
         let player1move1hash:field = acceptor.player1move1hash;
@@ -187,6 +282,7 @@ program game.aleo {
     
     }
 
+**/
 
     transition challengemove(
       
@@ -194,12 +290,59 @@ program game.aleo {
         move:u64
     ) -> acceptgame{
         
+ assert(game.currentmove <=2u64 );
+        assert(move != 3u64);
 
-        let boba: acceptgame =   acceptmove(game,move);     
-        return boba;
+        let player2move1:u64 = game.player2move1;
+         let player2move2:u64 = game.player2move2;
+          let player2move3:u64 = game.player2move3;
 
+               if(game.currentmove == 0u64){
+            assert(player2move1 == 3u64);
+            player2move1 = move;
+        }
+
+        else if(game.currentmove == 1u64){
+            assert(player2move2 == 3u64);
+            player2move2 = move;
+        }
+
+        else if(game.currentmove == 2u64){
+            assert(player2move3 == 3u64);
+            player2move3 = move;
+        }
+         else{
+            assert(false);
+        }
+
+
+
+        return acceptgame{
+            owner:game.issuer,
+            gates:game.gates,
+            gameid:game.gameid,
+            amount: game.amount,
+            issuer: game.issuer,
+            acceptor: game.acceptor,
+            currentmove: game.currentmove,
+            player1points: game.player1points,
+            player2points: game.player2points,
+                    currentmoveplayer:0u64,
+                        player1move1hash: game.player1move1hash,
+        player2move1: player2move1,
+        player1move1:game.player1move1,
+        player1move2hash: game.player1move2hash,
+        player2move2: player2move2,
+        player1move2:game.player1move2,
+        player1move3hash: game.player1move3hash,
+        player2move3: player2move3,
+        player1move3:game.player1move3,
+         
+
+    };
     }
-      function acceptmove(acceptor:acceptgame,move:u64) -> acceptgame {
+      
+ /**     function acceptmove(acceptor:acceptgame,move:u64) -> acceptgame {
           assert(acceptor.currentmove <=2u64 );
         assert(move != 3u64);
 
@@ -254,7 +397,7 @@ program game.aleo {
     
     }
 
-
+**/
     transition  finalizemov(
 
         game: acceptgame,
@@ -318,14 +461,68 @@ program game.aleo {
             }
         }
         
-        let state2: acceptgame = changemove(game,winner,playermov);
+        let player1:u64 = game.player1points;
+        let player2:u64 = game.player2points;
+        let currentm: u64 = game.currentmove;
+        let player1move1:u64 = game.player1move1;
+         let player1move2:u64 = game.player1move2;
+          let player1move3:u64 = game.player1move3;
+        if(game.currentmove == 0u64){
+            assert(player1move1 == 3u64);
+            player1move1 = playermov;
+            currentm = currentm+1u64;
+            
+        }
+
+        else if(game.currentmove == 1u64){
+            assert(player1move2 == 3u64);
+            player1move2 = playermov;
+              currentm = currentm+1u64;
+            
+        }
+
+        else if(game.currentmove == 2u64){
+            assert(player1move3 == 3u64);
+            player1move3 = playermov;
+              currentm = currentm+1u64;
+        }
+        else{
+            assert(false);
+        }
+
+  
+        if(winner==1u64){
+            player1 = player1+1u64;
+            
+        }else if(winner==2u64){
+            player2 = player2+1u64;
+        }
+
+                return acceptgame{
+            owner:game.issuer,
+            gates:game.gates,
+            gameid:game.gameid,
+            amount: game.amount,
+            issuer: game.issuer,
+            acceptor: game.acceptor,
+            currentmove: currentm,
+            player1points: player1,
+            player2points: player2,
+                    currentmoveplayer:0u64,
+                        player1move1hash: game.player1move1hash,
+        player2move1: game.player2move1,
+        player1move1:player1move1,
+        player1move2hash: game.player1move2hash,
+        player2move2: game.player2move2,
+        player1move2:player1move2,
+        player1move3hash: game.player1move3hash,
+        player2move3: game.player2move3,
+        player1move3:player1move3,
        
-        
-        return state2;
+    };}
+    
 
-    }
-
-
+/**
            function changemove(acceptor:acceptgame,won: u64,move: u64) -> acceptgame {
         let player1:u64 = acceptor.player1points;
         let player2:u64 = acceptor.player2points;
@@ -389,7 +586,7 @@ program game.aleo {
     
     
     }
-
+**/
 
 
 
