@@ -4,7 +4,7 @@
 program game.aleo {
     // On-chain storage of an `account` map, with `address` as the key,
     // and `u64` as the value.
-    mapping account: address => u64;
+  
    record acceptgame{
         owner: address,
         gates: u64,
