@@ -25,6 +25,7 @@ program game.aleo {
         player1move3hash: field,
         player2move3: u64,
         player1move3:u64,
+        gamewinner:address
      
     }
 
@@ -61,6 +62,7 @@ program game.aleo {
             currentmove: 0u64,
             player1points: 0u64,
             player2points: 0u64,
+            gamewinner: aleo1yg45xvfa2mu960k27azpl8kgeedcqk3afvxhwaf69k8ltdh50cqqus5u74
            
         };
        
@@ -126,6 +128,7 @@ program game.aleo {
             currentmove: 0u64,
             player1points: 0u64,
             player2points: 0u64,
+            gamewinner: game.gamewinner
            
         };
 
@@ -220,6 +223,7 @@ assert(game.currentmove <=2u64 );
             currentmove: game.currentmove,
             player1points: game.player1points,
             player2points: game.player2points,
+             gamewinner: game.gamewinner
            
         };
     
@@ -337,6 +341,7 @@ assert(game.currentmove <=2u64 );
         player1move3hash: game.player1move3hash,
         player2move3: player2move3,
         player1move3:game.player1move3,
+         gamewinner: game.gamewinner
          
 
     };
@@ -403,10 +408,10 @@ assert(game.currentmove <=2u64 );
         game: acceptgame,
        
          playermove: u64
-    ) -> acceptgame{
+    ) -> (acceptgame,acceptgame){
         assert(game.currentmove<3u64);
         let acceptormove:u64 = 3u64;
-
+      
           if(game.currentmove == 0u64){
             assert(game.player1move1hash == Poseidon8::hash(playermove));
              acceptormove = game.player2move1;
@@ -498,7 +503,16 @@ assert(game.currentmove <=2u64 );
             player2 = player2+1u64;
         }
 
-                return acceptgame{
+        if (currentm == 3u64){
+            let gamewinners:address = aleo1yg45xvfa2mu960k27azpl8kgeedcqk3afvxhwaf69k8ltdh50cqqus5u74;
+            
+            if(player1>player2){
+                gamewinners = game.issuer;
+            }
+            else if(player2>player1){
+                gamewinners=game.acceptor;
+            }
+              return  (acceptgame{
             owner:game.issuer,
             gates:game.gates,
             gameid:game.gameid,
@@ -518,8 +532,90 @@ assert(game.currentmove <=2u64 );
         player1move3hash: game.player1move3hash,
         player2move3: game.player2move3,
         player1move3:player1move3,
-       
-    };}
+        gamewinner: gamewinners
+    },acceptgame{
+            owner:game.issuer,
+            gates:game.gates,
+            gameid:game.gameid,
+            amount: game.amount,
+            issuer: game.issuer,
+            acceptor: game.acceptor,
+            currentmove: currentm,
+            player1points: player1,
+            player2points: player2,
+                    currentmoveplayer:0u64,
+                        player1move1hash: game.player1move1hash,
+        player2move1: game.player2move1,
+        player1move1:player1move1,
+        player1move2hash: game.player1move2hash,
+        player2move2: game.player2move2,
+        player1move2:player1move2,
+        player1move3hash: game.player1move3hash,
+        player2move3: game.player2move3,
+        player1move3:player1move3,
+        gamewinner: gamewinners 
+        });
+
+
+        }
+
+
+
+                return (acceptgame{
+            owner:game.issuer,
+            gates:game.gates,
+            gameid:game.gameid,
+            amount: game.amount,
+            issuer: game.issuer,
+            acceptor: game.acceptor,
+            currentmove: currentm,
+            player1points: player1,
+            player2points: player2,
+                    currentmoveplayer:0u64,
+                        player1move1hash: game.player1move1hash,
+        player2move1: game.player2move1,
+        player1move1:player1move1,
+        player1move2hash: game.player1move2hash,
+        player2move2: game.player2move2,
+        player1move2:player1move2,
+        player1move3hash: game.player1move3hash,
+        player2move3: game.player2move3,
+        player1move3:player1move3,
+        gamewinner: game.gamewinner
+    },acceptgame{
+            owner:aleo1yg45xvfa2mu960k27azpl8kgeedcqk3afvxhwaf69k8ltdh50cqqus5u74,
+            gates:game.gates,
+            gameid:game.gameid,
+            amount: game.amount,
+            issuer: game.issuer,
+            acceptor: game.acceptor,
+            currentmove: currentm,
+            player1points: player1,
+            player2points: player2,
+                    currentmoveplayer:0u64,
+                        player1move1hash: game.player1move1hash,
+        player2move1: game.player2move1,
+        player1move1:player1move1,
+        player1move2hash: game.player1move2hash,
+        player2move2: game.player2move2,
+        player1move2:player1move2,
+        player1move3hash: game.player1move3hash,
+        player2move3: game.player2move3,
+        player1move3:player1move3,
+        gamewinner: game.gamewinner
+        });
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    }
     
 
 /**
