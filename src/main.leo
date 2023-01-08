@@ -181,17 +181,17 @@ assert(game.currentmove <=2u64 );
         let player1move3hash:field = game.player1move3hash;
        
         if(game.currentmove == 0u64){
-            assert(player1move1hash == Poseidon8::hash(0u64));
+            assert(player1move1hash == 0field);
             player1move1hash = hash;
         }
 
         else if(game.currentmove == 1u64){
-            assert(player1move2hash == Poseidon8::hash(0u64));
+            assert(player1move2hash == 0field);
             player1move2hash = hash;
         }
 
         else if(game.currentmove == 2u64){
-            assert(player1move3hash == Poseidon8::hash(0u64));
+            assert(player1move3hash == 0field);
             player1move3hash = hash;
         }
 
