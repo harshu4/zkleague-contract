@@ -1,7 +1,7 @@
 
 ## ZK League
 
-Game Link :  [Click Here](https://game.galacticwar.live/)
+Game Link :  [Click Here](https://zk-league.b-cdn.net/)
 
 Github Link :  [Click Here](https://github.com/harshu4/zkleague-contract)
 
